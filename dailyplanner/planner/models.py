@@ -20,22 +20,33 @@ class category(models.Model):
     baseXP = models.IntegerField(default = 0)
 
     def __str__(self):
-        return self.category.categoryName
+        return self.categoryName
 
 class task(models.Model):
     taskID = models.AutoField(primary_key=True)
     categoryID = models.ForeignKey(category,on_delete=models.CASCADE)
-    completedFlag = models.BooleanField(default = False)
     taskInfo = models.CharField(max_length=255)
 
     def __str__(self):
-        return self.task.taskInfo
+        return self.taskInfo
+    
+class completed(models.Model):
+    userID = models.ForeignKey(userProfile,on_delete=models.CASCADE)
+    taskID = models.ForeignKey(task,on_delete=models.CASCADE)
+    completedFlag = models.BooleanField(default = False)
+
+    def __str__(self):
+        return f"{self.userID} - {self.taskID} - Completed: {self.completedFlag}"
+    
+    class Meta:
+        # Define a unique constraint for the combination of userID and taskID
+        unique_together = ('userID', 'taskID')
 
 class schedule(models.Model):
     scheduleID = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    taskID = models.ForeignKey(task,on_delete=models.CASCADE)
+    taskID = models.ManyToManyField(task)
     schedule_day = models.DateField(default = timezone.now)
 
     def __str__(self):
-        return self.schedule.user.username
+        return self.user.username
