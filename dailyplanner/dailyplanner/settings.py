@@ -56,7 +56,7 @@ ROOT_URLCONF = "dailyplanner.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['templates','userAuth/templates','planner/templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

@@ -8,9 +8,11 @@ class userProfile(models.Model):
     lastLogin = models.DateField(default = timezone.now)
     experience = models.IntegerField(default = 0)
     level = models.IntegerField(default = 0)
+    maxXP = models.IntegerField(default = 50)
 
 class category(models.Model):
     categoryID = models.AutoField(primary_key=True)
+    categoryName = models.CharField(max_length = 255, default=None)
     baseXP = models.IntegerField(default = 0)
 
 class task(models.Model):
