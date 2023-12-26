@@ -1,8 +1,8 @@
-# Django Daily Planner App with Gamification
+# Django Gameified Daily Planner App
 
 ## Overview
 
-The Django Daily Planner App with Gamification is a feature-rich application designed to help users organise their daily tasks while adding an element of fun through gamification. This app is built on the Django web framework, providing a robust and scalable solution for task management.
+The Django Daily Planner App with Gamification is an application designed to help users organise their daily tasks while adding an element of fun through gamification. This app is built on the Django web framework, providing a robust and scalable solution for task management.
 
 ## Features
 
