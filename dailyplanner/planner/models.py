@@ -26,6 +26,7 @@ class task(models.Model):
     taskID = models.AutoField(primary_key=True)
     categoryID = models.ForeignKey(category,on_delete=models.CASCADE)
     taskInfo = models.CharField(max_length=255)
+    xpMultiplier = models.IntegerField(default = 1)
 
     def __str__(self):
         return self.taskInfo
