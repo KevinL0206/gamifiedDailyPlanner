@@ -8,12 +8,7 @@ from datetime import datetime
 # Create your views here.
 
 @login_required
-def dateDiff(request):
-    currentUser = request.user
-    userInstance = currentUser.userProfile
-    lastLogin = userInstance.lastLogin
-    currentDate = datetime.datetime.now()
-    return int(currentDate - lastLogin)
+
     
 @login_required
 def resetSchedule(request):
@@ -21,7 +16,7 @@ def resetSchedule(request):
     userInstance = currentUser.userProfile
     completedInstance = completed.objects.get(userID = currentUser)
     
-    currentDate = datetime.datetime.now()
+    currentDate = datetime.day()
     lastLogin = userInstance.lastLogin
     currentDay = currentDate.day
     lastLoginDay = lastLogin.day
@@ -51,19 +46,42 @@ def addXP(request,task):
     
     completedInstance = completed.objects.get(userid=currentUser,taskID = completedTask)
     completedFlag = completedInstance.completedFlag
-    xpGain =taskBaseXP * taskXPMultiplier
+    lastCompletion = completedInstance.dateCompleted
 
+    negMultiplier = 1
+    posMultiplier = 1
+
+    """
+    check last the last date the task was completed, 
+    if it has been more than 3 days, reduce xp gain
+    """
+    if lastCompletion != datetime.date(1,1,1):
+        dateDiff = datetime.day() - lastCompletion
+        if dateDiff >= 3:
+            negMultiplier = 0.75
+    
+    if completedInstance.streak >= 3:
+        posMultiplier = 1.25
+    
+    xpGain =taskBaseXP * taskXPMultiplier * negMultiplier * posMultiplier
+    
     if not completedFlag:
         if currentExperience + xpGain <= maximumExperience: #Experience gain is not enough to level up
             userInstance = currentUser.userProfile
             userInstance.experience = currentExperience + xpGain
             userInstance.save()
+            completedInstance.completedFlag = True
+            completedInstance.streak += 1
+            completedInstance.save()
         else:
             userInstance = currentUser.userProfile #Experience gain results in level up
             overflow = (currentExperience + xpGain) - maximumExperience
             userInstance.level = currentLevel + 1
             userInstance.experience = overflow
             userInstance.save()
+            completedInstance.completedFlag = True
+            completedInstance.streak += 1
+            completedInstance.save()
     else:
         messages.success(request,'Task Has Already Been Completed')
 
