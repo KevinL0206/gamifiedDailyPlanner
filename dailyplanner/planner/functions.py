@@ -7,9 +7,7 @@ from django.contrib import messages
 from datetime import datetime
 # Create your views here.
 
-@login_required
 
-    
 @login_required
 def resetSchedule(request):
     currentUser = request.user
@@ -17,7 +15,7 @@ def resetSchedule(request):
     completedInstance = completed.objects.get(userID = currentUser)
     
     currentDate = datetime.day()
-    lastLogin = userInstance.lastLogin
+    lastLogin = userInstance.tempDate
     currentDay = currentDate.day
     lastLoginDay = lastLogin.day
 
@@ -29,6 +27,8 @@ def resetSchedule(request):
 @login_required
 def addXP(request,task):
     resetSchedule()
+
+    #Create Model Instances
     currentUser = request.user
 
     userInstance = currentUser.userProfile
@@ -51,10 +51,9 @@ def addXP(request,task):
     negMultiplier = 1
     posMultiplier = 1
 
-    """
-    check last the last date the task was completed, 
-    if it has been more than 3 days, reduce xp gain
-    """
+
+    #Check Completion Streaks, Update Multipliers
+    
     if lastCompletion != datetime.date(1,1,1):
         dateDiff = datetime.day() - lastCompletion
         if dateDiff >= 3:
@@ -65,6 +64,7 @@ def addXP(request,task):
     
     xpGain =taskBaseXP * taskXPMultiplier * negMultiplier * posMultiplier
     
+    #Update XP if task not completed
     if not completedFlag:
         if currentExperience + xpGain <= maximumExperience: #Experience gain is not enough to level up
             userInstance = currentUser.userProfile

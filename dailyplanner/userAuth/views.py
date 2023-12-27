@@ -3,6 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .forms import CreateUserForm, loginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
+from planner.models import *
+from datetime import date,datetime
 
 # Create your views here.
 
@@ -32,6 +34,11 @@ def loginUser(request):
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            userInstance = username.userProfile
+            userInstance.tempDate = userInstance.lastLogin
+            userInstance.lastLogin = datetime.day()
+            userInstance.save()
+            
             login(request, user)
             return redirect('home')
             # Redirect to a success page.

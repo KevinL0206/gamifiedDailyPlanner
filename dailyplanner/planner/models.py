@@ -8,6 +8,7 @@ from datetime import date
 class userProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     lastLogin = models.DateField(default = timezone.now)
+    tempDate = models.DateField(default = date(1,1,1))
     level = models.IntegerField(default = 0)
     experience = models.FloatField(default = 0)
     maxXP = models.IntegerField(default = 50)
