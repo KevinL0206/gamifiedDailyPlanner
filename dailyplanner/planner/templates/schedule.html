@@ -6,19 +6,26 @@
     <title>Schedule</title>
 </head>
 <body>
+    <h1>{{user}}'s Schedule</h1>
+    <h2>Experience: {{experience}} / {{max}}</h2>
+    <br>
+
     <table class="table" border="1" width="80%" height="100%">
         <thead>
             <tr>
                 <th scope="col">Tasks</th>
+                <th scope="col">Completed</th>
             </tr>
             </thead>
     
             <tbody>
-            {% for task in tasks %}
+            {% for task,flag in tasks %}
             <tr>
-                <td align="center">{{task.taskInfo}}</td>
+                <td align="center">{{task}}</td>
+                <td align="center"> {{flag}}</td>
             </tr>
             {% endfor %}
+
             </tbody>
     </table>
 </body>
