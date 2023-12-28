@@ -11,11 +11,13 @@ from datetime import datetime
 @login_required
 def resetSchedule(request):
     currentUser = request.user
-    userInstance = currentUser.userProfile
+    user_instance = User.objects.get(username=currentUser)         
+    profileInstance = userProfile.objects.get(user=user_instance)
+
     completedInstance = completed.objects.get(userID = currentUser)
     
-    currentDate = datetime.day()
-    lastLogin = userInstance.tempDate
+    currentDate = date.today()
+    lastLogin = profileInstance.tempDate
     currentDay = currentDate.day
     lastLoginDay = lastLogin.day
 
@@ -31,11 +33,13 @@ def addXP(request,task):
     #Create Model Instances
     currentUser = request.user
 
-    userInstance = currentUser.userProfile
+    user_instance = User.objects.get(username=currentUser)         
+    profileInstance = userProfile.objects.get(user=user_instance)
+
     completedTask = task
-    currentLevel = userInstance.level
-    currentExperience = userInstance.experience
-    maximumExperience = userInstance.maxXP
+    currentLevel = profileInstance.level
+    currentExperience = profileInstance.experience
+    maximumExperience = profileInstance.maxXP
 
     taskInstance = task.objects.get(taskID = completedTask)
     taskCategory = taskInstance.categoryID
@@ -55,7 +59,7 @@ def addXP(request,task):
     #Check Completion Streaks, Update Multipliers
     
     if lastCompletion != datetime.date(1,1,1):
-        dateDiff = datetime.day() - lastCompletion
+        dateDiff = date.today() - lastCompletion
         if dateDiff >= 3:
             negMultiplier = 0.75
     
@@ -67,18 +71,20 @@ def addXP(request,task):
     #Update XP if task not completed
     if not completedFlag:
         if currentExperience + xpGain <= maximumExperience: #Experience gain is not enough to level up
-            userInstance = currentUser.userProfile
-            userInstance.experience = currentExperience + xpGain
-            userInstance.save()
+            user_instance = User.objects.get(username=currentUser)         
+            profileInstance = userProfile.objects.get(user=user_instance)
+            profileInstance.experience = currentExperience + xpGain
+            profileInstance.save()
             completedInstance.completedFlag = True
             completedInstance.streak += 1
             completedInstance.save()
         else:
-            userInstance = currentUser.userProfile #Experience gain results in level up
+            user_instance = User.objects.get(username=currentUser)         
+            profileInstance = userProfile.objects.get(user=user_instance) #Experience gain results in level up
             overflow = (currentExperience + xpGain) - maximumExperience
-            userInstance.level = currentLevel + 1
-            userInstance.experience = overflow
-            userInstance.save()
+            profileInstance.level = currentLevel + 1
+            profileInstance.experience = overflow
+            profileInstance.save()
             completedInstance.completedFlag = True
             completedInstance.streak += 1
             completedInstance.save()

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule</title>
+</head>
+<body>
+    <table class="table" border="1" width="80%" height="100%">
+        <thead>
+            <tr>
+                <th scope="col">Tasks</th>
+            </tr>
+            </thead>
+    
+            <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td align="center">{{task.taskInfo}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+    </table>
+</body>
+</html>

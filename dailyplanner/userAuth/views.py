@@ -4,6 +4,7 @@ from .forms import CreateUserForm, loginForm
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from planner.models import *
+from django.contrib.auth.models import User
 from datetime import date,datetime
 
 # Create your views here.
@@ -19,6 +20,10 @@ def register(request):
         form = CreateUserForm(request.POST)
         if form.is_valid():
             form.save()
+            username = form.cleaned_data.get('username')
+            user_instance = User.objects.get(username=username)
+            new_user_profile = userProfile.objects.create(user=user_instance)
+            userSchedule = schedule.objects.create(user=user_instance)
             messages.success(request,'Registration Successful')
             return redirect('login')
         
@@ -34,11 +39,14 @@ def loginUser(request):
         password = request.POST["password"]
         user = authenticate(request, username=username, password=password)
         if user is not None:
-            userInstance = username.userProfile
-            userInstance.tempDate = userInstance.lastLogin
-            userInstance.lastLogin = datetime.day()
-            userInstance.save()
+
+            user_instance = User.objects.get(username=username)
             
+            profileInstance = userProfile.objects.get(user=user_instance)
+            profileInstance.tempDate = profileInstance.lastLogin
+            profileInstance.lastLogin = date.today()
+            profileInstance.save()
+
             login(request, user)
             return redirect('home')
             # Redirect to a success page.
