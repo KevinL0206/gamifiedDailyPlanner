@@ -6,12 +6,14 @@ from django.http import JsonResponse
 from datetime import datetime
 from .functions import addXP
 from django.contrib import messages
-from .forms import addTask
+from .forms import addTask,completeTask
 
 # Create your views here.
 
 def displaySchedule(request):
     currentUser = request.user
+    completedTaskForm = completeTask()
+
     userInstance = User.objects.get(username = currentUser)
     scheduleInstance = schedule.objects.get(user = userInstance)
     userProfileInstance = userProfile.objects.get(user = userInstance)
@@ -36,10 +38,44 @@ def displaySchedule(request):
         'experience' : experience,
         'max' : maxXP,
         'level' : level,
+        'form' : completedTaskForm,
         
         }
+    
+    if request.method == "POST":
+        form = completeTask(request.POST)
+
+        if form.is_valid():
+            taskInfo = form.cleaned_data['taskID']
+            flag = form.cleaned_data['completedFlag']
+            taskID = taskInfo.taskID
+            taskInstance = task.objects.get(taskID = taskID)
+            completedInstance = completed.objects.get(userID = userProfileInstance,taskID = taskInstance)
+            completedFlag = completedInstance.completedFlag
+
+            if not completedFlag and flag:
+                addXP(request,user=currentUser,completedtask=taskID)
+                return redirect('display')
+            elif not completedFlag and not flag:
+                pass
+            elif completedFlag and flag:
+                messages.success(request,'Task is Already Completed')
+            elif completedFlag and not flag:
+                pass
+            
+
+        #create instance of completed with userid and task id
+        #if form is valid and completedflag = false and post is true update completed flag, call addXP function
+        #if form is valid completed flag = false and post is false do nothing
+        #if form is valid and completed flag = true and post is true do nothing, send message
+        #if form is valid and completed flag=true and post is false, remove xp
+        
+
+        
+
 
     return render(request,'schedule.html',context)
+
 
 def editSchedule(request):
     addTaskForm = addTask()

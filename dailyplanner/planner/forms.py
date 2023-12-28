@@ -12,4 +12,21 @@ class addTask(forms.ModelForm):
             'taskID': forms.CheckboxSelectMultiple,
         }
 
+class TrueFalseDropdown(forms.Select):
+    def __init__(self, attrs=None):
+        choices = (
+            (True, 'True'),
+            (False, 'False'),
+        )
+        super().__init__(attrs, choices)
 
+class completeTask(forms.ModelForm):
+    class Meta:
+        model = completed
+        fields=['taskID','completedFlag']
+        widgets = {
+            'taskID': forms.Select(attrs={'class':'form-control'}),
+            'completedFlag': TrueFalseDropdown()
+        }
+
+        

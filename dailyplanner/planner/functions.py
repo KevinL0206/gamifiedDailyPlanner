@@ -4,17 +4,17 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
-from datetime import datetime
+from datetime import date
 # Create your views here.
 
 
 @login_required
-def resetSchedule(request):
-    currentUser = request.user
-    user_instance = User.objects.get(username=currentUser)         
+def resetSchedule(request,user):
+    
+    user_instance = User.objects.get(username=user)         
     profileInstance = userProfile.objects.get(user=user_instance)
 
-    completedInstance = completed.objects.get(userID = currentUser)
+    completedInstance = completed.objects.filter(userID = profileInstance)
     
     currentDate = date.today()
     lastLogin = profileInstance.tempDate
@@ -27,16 +27,16 @@ def resetSchedule(request):
             completedInstance.save()
 
 @login_required
-def addXP(request,task):
-    resetSchedule()
+def addXP(request,user,completedtask):
+    resetSchedule(request,user=user)
 
     #Create Model Instances
-    currentUser = request.user
+    currentUser = user
 
     user_instance = User.objects.get(username=currentUser)         
     profileInstance = userProfile.objects.get(user=user_instance)
 
-    completedTask = task
+    completedTask = completedtask
     currentLevel = profileInstance.level
     currentExperience = profileInstance.experience
     maximumExperience = profileInstance.maxXP
@@ -45,10 +45,10 @@ def addXP(request,task):
     taskCategory = taskInstance.categoryID
     taskXPMultiplier = taskInstance.xpMultiplier
 
-    categoryInstance = category.objects.get(categoryID = taskCategory)
+    categoryInstance = category.objects.get(categoryName = taskCategory)
     taskBaseXP = categoryInstance.baseXP
     
-    completedInstance = completed.objects.get(userid=currentUser,taskID = completedTask)
+    completedInstance = completed.objects.get(userID=profileInstance,taskID = completedTask)
     completedFlag = completedInstance.completedFlag
     lastCompletion = completedInstance.dateCompleted
 
@@ -58,7 +58,7 @@ def addXP(request,task):
 
     #Check Completion Streaks, Update Multipliers
     
-    if lastCompletion != datetime.date(1,1,1):
+    if lastCompletion != date(1,1,1):
         dateDiff = date.today() - lastCompletion
         if dateDiff >= 3:
             negMultiplier = 0.75
@@ -88,8 +88,7 @@ def addXP(request,task):
             completedInstance.completedFlag = True
             completedInstance.streak += 1
             completedInstance.save()
-    else:
-        messages.success(request,'Task Has Already Been Completed')
+
 
 
 
