@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from datetime import datetime
 from .functions import addXP
+from django.contrib import messages
+from .forms import addTask
+
 # Create your views here.
 
 def displaySchedule(request):
@@ -37,3 +40,38 @@ def displaySchedule(request):
         }
 
     return render(request,'schedule.html',context)
+
+def editSchedule(request):
+    addTaskForm = addTask()
+    context = {
+        'addTaskForm' : addTaskForm,
+    }
+    currentUser = request.user
+    scheduleInstance = schedule.objects.get(user = currentUser)
+    if request.method == 'POST':
+
+        form = addTask(request.POST,instance=scheduleInstance)
+        
+        if form.is_valid():
+            tasks = form.save(commit=False)
+            tasks.user = currentUser
+            form.save()
+
+            taskIDs = form.cleaned_data['taskID']
+            
+            for taskID in taskIDs:
+                IDs = taskID.taskID
+                
+                userInstance = User.objects.get(username = currentUser)
+                userProfileInstance = userProfile.objects.get(user = userInstance)
+                taskInstance = task.objects.get(taskID=IDs)
+
+                if not completed.objects.filter(userID = userProfileInstance,taskID=IDs).exists():
+                    completed.objects.create(userID = userProfileInstance,taskID=taskInstance)
+
+            return redirect('display')
+        else:
+            messages.success(request, form.errors)
+            messages.success(request, 'Failed to Add Task')
+
+    return render(request,'editSchedule.html',context)
