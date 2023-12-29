@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate,login,logout
 from planner.models import *
 from django.contrib.auth.models import User
 from datetime import date,datetime
+from planner.functions import resetSchedule
 
 # Create your views here.
 
@@ -41,7 +42,7 @@ def loginUser(request):
         if user is not None:
 
             user_instance = User.objects.get(username=username)
-            
+            resetSchedule(request,user=username)
             profileInstance = userProfile.objects.get(user=user_instance)
             profileInstance.tempDate = profileInstance.lastLogin
             profileInstance.lastLogin = date.today()

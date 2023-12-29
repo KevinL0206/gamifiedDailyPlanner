@@ -17,14 +17,18 @@ def resetSchedule(request,user):
     completedInstance = completed.objects.filter(userID = profileInstance)
     
     currentDate = date.today()
-    lastLogin = profileInstance.tempDate
+    lastLogin = profileInstance.lastLogin
     currentDay = currentDate.day
     lastLoginDay = lastLogin.day
 
-    if currentDay != lastLoginDay:
+    if currentDate != lastLogin:
         for task in completedInstance:
-            completedInstance.completedFlag = False
-            completedInstance.save()
+
+            task.completedFlag = False
+            task.save()
+
+        profileInstance.lastLogin = currentDate
+        profileInstance.save()
 
 @login_required
 def addXP(request,user,completedtask):
@@ -55,12 +59,11 @@ def addXP(request,user,completedtask):
     negMultiplier = 1
     posMultiplier = 1
 
-
     #Check Completion Streaks, Update Multipliers
     
     if lastCompletion != date(1,1,1):
         dateDiff = date.today() - lastCompletion
-        if dateDiff >= 3:
+        if dateDiff.days >= 3:
             negMultiplier = 0.75
     
     if completedInstance.streak >= 3:
@@ -76,16 +79,20 @@ def addXP(request,user,completedtask):
             profileInstance.experience = currentExperience + xpGain
             profileInstance.save()
             completedInstance.completedFlag = True
+            completedInstance.dateCompleted = date.today()
             completedInstance.streak += 1
             completedInstance.save()
         else:
             user_instance = User.objects.get(username=currentUser)         
             profileInstance = userProfile.objects.get(user=user_instance) #Experience gain results in level up
             overflow = (currentExperience + xpGain) - maximumExperience
+
             profileInstance.level = currentLevel + 1
+            profileInstance.maxXP = int(profileInstance.maxXP *  1.25)
             profileInstance.experience = overflow
             profileInstance.save()
             completedInstance.completedFlag = True
+            completedInstance.dateCompleted = date.today()
             completedInstance.streak += 1
             completedInstance.save()
 

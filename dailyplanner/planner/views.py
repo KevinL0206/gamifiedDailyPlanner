@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from datetime import datetime
-from .functions import addXP
+from .functions import addXP,resetSchedule
 from django.contrib import messages
 from .forms import addTask,completeTask
 
@@ -12,6 +12,8 @@ from .forms import addTask,completeTask
 
 def displaySchedule(request):
     currentUser = request.user
+    resetSchedule(request,currentUser)
+    
     completedTaskForm = completeTask()
 
     userInstance = User.objects.get(username = currentUser)
@@ -62,17 +64,6 @@ def displaySchedule(request):
                 messages.success(request,'Task is Already Completed')
             elif completedFlag and not flag:
                 pass
-            
-
-        #create instance of completed with userid and task id
-        #if form is valid and completedflag = false and post is true update completed flag, call addXP function
-        #if form is valid completed flag = false and post is false do nothing
-        #if form is valid and completed flag = true and post is true do nothing, send message
-        #if form is valid and completed flag=true and post is false, remove xp
-        
-
-        
-
 
     return render(request,'schedule.html',context)
 
